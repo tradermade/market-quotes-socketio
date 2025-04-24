@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Live Bid / Ask</title>
+
+  <!-- Minimal CSS to center everything -->
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: flex;             /* create flexbox */
+      align-items: center;       /* vertical centering */
+      justify-content: center;   /* horizontal centering */
+      font-family: sans-serif;
+    }
+    table, th, td { border: 1px solid #999; border-collapse: collapse; padding: .4rem .8rem; }
+    th { background: white }
+  </style>
+
+  <!-- Socket.IO client -->
+  <script src="https://cdn.socket.io/4.5.1/socket.io.min.js"></script>
+</head>
+<body>
+
+<table id="rates">
+  <thead>
+    <tr><th>Symbol</th><th>Bid</th><th>Ask</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+  const socket = io();                          // connects to same host
+  const tbody  = document.querySelector('#rates tbody');
+
+  function upsert({ symbol, bid, ask }) {
+    if (!symbol) return;
+    let row = document.getElementById(symbol);
+    if (!row) { row = tbody.insertRow(); row.id = symbol;
+      row.insertCell(); row.insertCell(); row.insertCell(); }
+    row.cells[0].textContent = symbol;
+    row.cells[1].textContent = bid;
+    row.cells[2].textContent = ask;
+  }
+
+  socket.on('initial_data', snap => Object.values(snap).forEach(upsert));
+  socket.on('market_update', upsert);
+</script>
+
+</body>
+</html>
