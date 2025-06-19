@@ -138,7 +138,7 @@ tm_stream = TraderMadeStream()
 
 @app.route('/')
 def index():
-    return render_template('index5.html')
+    return render_template('index3.html')
 
 # @app.route('/2')
 # def index2():
