@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live G10 Currency Data – Real-time Charts</title>
+
+  <!-- Include Chart.js and required dependencies -->
+  <script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"></script>
+<link rel="stylesheet" href="static/style.css">
+</head>
+<body class="dark-mode">
+  <div class="container">
+    <div class="container">
+      
+        <div class="header">
+          <div class="header-left">
+            <h1>Real-time G10 Currency Rates</h1>
+            <div class="status-bar">
+              <div class="status-indicator">
+                <span id="connectionDot" class="status-dot disconnected"></span>
+                <span id="connectionStatus">Disconnected</span>
+              </div>
+
+            </div>
+          </div>
+          <div class="header-right">
+            <div class="controls">
+              <button id="connectBtn" class="action-button">
+                <span class="button-icon">●</span> Connect
+              </button>
+              <button id="disconnectBtn" class="action-button" disabled>
+                <span class="button-icon">■</span> Disconnect
+              </button>
+              <button id="theme-toggle" onclick="toggleDarkMode()">☀️</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-header">
+          <div class="chart-title" id="chart-title">EURUSD</div>
+            <div class="chart-options">
+              <select id="chartTypeSelector">
+                <option value="spread">Spread</option>
+                <option value="bidask">Bid & Ask</option>
+              </select>
+
+            </div>
+        </div>
+        <div id="priceChart" style="height: 100%; min-height: 400px;"></div>
+      </div>
+    <div class="dashboard">
+      
+      <div class="table-container">
+        <table id="currencyTable">
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Bid</th>
+              <th>Ask</th>
+              <th>Spread (pips)</th>
+              <th>Spread (%)</th>
+              <th>Spread High (pips)</th>
+              <th>Spread Low (pips)</th>
+              <th>Last Updated</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      
+      
+    </div>
+  </div>
+
+<script src="static/script.js"></script>
+    
+</body>
+</html>
