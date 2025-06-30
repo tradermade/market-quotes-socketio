@@ -82,10 +82,9 @@ function formatTime(ts) {
 }
 
 function createHighchart() {
-  highchart = Highcharts.stockChart('priceChart', {
+  const chartConfig = {
     chart: { type: 'line', animation: false },
     time: { useUTC: false },
-    title: { text: `${seriesOptions[selectedChartType].name} – ${selectedSymbol}` },
     xAxis: {
       type: 'datetime',
       labels: { format: '{value:%H:%M:%S.%L}' }
@@ -96,30 +95,48 @@ function createHighchart() {
       shared: true
     },
     rangeSelector: { enabled: false },
-    series: [{
-      name: seriesOptions[selectedChartType].name,
-      color: seriesOptions[selectedChartType].color,
+    series: []
+  };
+
+  if (selectedChartType === 'spread') {
+    chartConfig.title = { text: `Spread (pips) – ${selectedSymbol}` };
+    chartConfig.series.push({
+      name: 'Spread (pips)',
+      color: '#3a86ff',
       data: [],
       turboThreshold: 0
-    }]
-  });
+    });
+  } else if (selectedChartType === 'bidask') {
+    chartConfig.title = { text: `Bid & Ask – ${selectedSymbol}` };
+    chartConfig.series.push(
+      {
+        name: 'Bid Price',
+        color: '#38b000',
+        data: [],
+        turboThreshold: 0
+      },
+      {
+        name: 'Ask Price',
+        color: '#d90429',
+        data: [],
+        turboThreshold: 0
+      }
+    );
+  }
+
+  highchart = Highcharts.stockChart('priceChart', chartConfig);
 }
 
 function resetChart() {
   chartSeriesData.length = 0;
-  if (!highchart) {
-    createHighchart();
-  } else {
-    highchart.series[0].update({
-      name: seriesOptions[selectedChartType].name,
-      color: seriesOptions[selectedChartType].color
-    }, false);
-    highchart.setTitle({ text: `${seriesOptions[selectedChartType].name} – ${selectedSymbol}` });
-    highchart.series[0].setData([], true);
+  if (highchart) {
+    highchart.destroy();
+    highchart = null;
   }
+  createHighchart();
 }
 function updateChart(data) {
-  if (data.symbol !== selectedSymbol) return;
+  if (data.symbol !== selectedSymbol || !highchart) return;
 
   if (previousSymbol !== selectedSymbol) {
     resetChart();
@@ -132,23 +149,13 @@ function updateChart(data) {
   const spreadPips = parseFloat(((ask - bid) * factor).toFixed(2));
   const ts = Number(data.ts) || Date.now();
 
-  let value;
-  switch (selectedChartType) {
-    case 'spread': value = spreadPips; break;
-    case 'bid': value = bid; break;
-    case 'ask': value = ask; break;
-  }
-
-  const point = [ts, value];
-  chartSeriesData.push(point);
-
-  const cutoff = Date.now() - selectedTimeRange * 1000;
-  while (chartSeriesData.length > 0 && chartSeriesData[0][0] < cutoff) {
-    chartSeriesData.shift();
-  }
-
-  if (highchart && highchart.series[0]) {
+  if (selectedChartType === 'spread') {
+    const point = [ts, spreadPips];
+    chartSeriesData.push(point);
     highchart.series[0].addPoint(point, true, false);
+  } else if (selectedChartType === 'bidask') {
+    highchart.series[0].addPoint([ts, bid], true, false); // Bid
+    highchart.series[1].addPoint([ts, ask], true, false); // Ask
   }
 }
 
