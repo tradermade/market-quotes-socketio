@@ -1,5 +1,5 @@
 ### Live Market Quotes Board  
-![Demo GIF](./liverates.gif)
+![Demo GIF](./spread-chart-dashboard.png)
 
 This demo shows how to:
 
