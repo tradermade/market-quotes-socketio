@@ -99,6 +99,7 @@ function createHighchart() {
   };
 
   if (selectedChartType === 'spread') {
+    console.log(selectedSymbol)
     chartConfig.title = { text: `Spread (pips) – ${selectedSymbol}` };
     chartConfig.series.push({
       name: 'Spread (pips)',
@@ -136,24 +137,19 @@ function resetChart() {
   createHighchart();
 }
 function updateChart(data) {
-  if (data.symbol !== selectedSymbol || !highchart) return;
+  if (data.symbol !== selectedSymbol) return;
 
   if (previousSymbol !== selectedSymbol) {
     resetChart();
     previousSymbol = selectedSymbol;
   }
 
+  const ts = Number(data.ts) || Date.now();
   const bid = parseFloat(data.bid);
   const ask = parseFloat(data.ask);
-  const factor = pipFactor(bid);
-  const spreadPips = parseFloat(((ask - bid) * factor).toFixed(2));
-  const ts = Number(data.ts) || Date.now();
 
-  if (selectedChartType === 'spread') {
-    const point = [ts, spreadPips];
-    chartSeriesData.push(point);
-    highchart.series[0].addPoint(point, true, false);
-  } else if (selectedChartType === 'bidask') {
+  // Add points to both series
+  if (highchart && highchart.series.length >= 2) {
     highchart.series[0].addPoint([ts, bid], true, false); // Bid
     highchart.series[1].addPoint([ts, ask], true, false); // Ask
   }
